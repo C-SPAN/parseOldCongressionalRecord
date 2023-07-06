@@ -2,7 +2,6 @@ package parseOldCongressionalRecord
 
 import (
 	"encoding/xml"
-	"os"
 	"strings"
 )
 
@@ -42,25 +41,18 @@ type XML struct {
 	Pages    []Page   `xml:"page"`
 }
 
-func ParseXML(xmlFile string) (string, error) {
-	xmlBytes, err := os.ReadFile(xmlFile)
-	if err != nil {
-		return "", err
-	}
-
-	sbody := string(xmlBytes)
-
+func ParseXML(xmlString string) (string, error) {
 	// remove italics and bolds
-	sbody = strings.ReplaceAll(sbody, "<b>", "")
-	sbody = strings.ReplaceAll(sbody, "</b>", "")
-	sbody = strings.ReplaceAll(sbody, "<i>", "")
-	sbody = strings.ReplaceAll(sbody, "</i>", "")
+	xmlString = strings.ReplaceAll(xmlString, "<b>", "")
+	xmlString = strings.ReplaceAll(xmlString, "</b>", "")
+	xmlString = strings.ReplaceAll(xmlString, "<i>", "")
+	xmlString = strings.ReplaceAll(xmlString, "</i>", "")
 
-	xmlBytes = []byte(sbody)
+	xmlBytes := []byte(xmlString)
 
 	xmlData := XML{}
 
-	err = xml.Unmarshal(xmlBytes, &xmlData)
+	err := xml.Unmarshal(xmlBytes, &xmlData)
 	if err != nil {
 		return "", err
 	}
