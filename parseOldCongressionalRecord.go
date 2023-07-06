@@ -2,9 +2,8 @@ package parseOldCongressionalRecord
 
 import (
 	"encoding/xml"
-	"fmt"
 	"os"
-  "strings"
+	"strings"
 )
 
 type Font struct {
@@ -43,42 +42,46 @@ type XML struct {
 	Pages    []Page   `xml:"page"`
 }
 
-func main() {
-	xmlBytes, err := os.ReadFile("GPO-CRECB-1953-pt13-1.xml")
+func ParseXML(xmlFile string) (string, error) {
+	xmlBytes, err := os.ReadFile(xmlFile)
 	if err != nil {
-		panic(err)
+		return "", err
 	}
 
-  sbody := string(xmlBytes)
+	sbody := string(xmlBytes)
 
-  // remove italics and bolds
-  sbody = strings.ReplaceAll(sbody, "<b>", "")
-  sbody = strings.ReplaceAll(sbody, "</b>", "")
-  sbody = strings.ReplaceAll(sbody, "<i>", "")
-  sbody = strings.ReplaceAll(sbody, "</i>", "")
+	// remove italics and bolds
+	sbody = strings.ReplaceAll(sbody, "<b>", "")
+	sbody = strings.ReplaceAll(sbody, "</b>", "")
+	sbody = strings.ReplaceAll(sbody, "<i>", "")
+	sbody = strings.ReplaceAll(sbody, "</i>", "")
 
-  xmlBytes= []byte(sbody)
+	xmlBytes = []byte(sbody)
 
 	xmlData := XML{}
 
 	err = xml.Unmarshal(xmlBytes, &xmlData)
 	if err != nil {
-		panic(err)
+		return "", err
 	}
 
 	lineBottom := 0
+
+	var txt string
 
 	for pageIndex := range xmlData.Pages {
 		for textIndex := range xmlData.Pages[pageIndex].Text {
 			text := &xmlData.Pages[pageIndex].Text[textIndex]
 
 			if text.Top >= lineBottom || text.Top < lineBottom-300 {
-				fmt.Print("\n") //nolint:forbidigo //ok
+				txt += "\n"
 			}
 
-			fmt.Print(text.Text) //nolint:forbidigo //ok
+			txt += text.Text
 
 			lineBottom = text.Top + text.Height
 		}
 	}
+
+	return txt, nil
 }
