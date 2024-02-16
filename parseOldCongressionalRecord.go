@@ -59,21 +59,21 @@ func ParseXML(xmlString string) (string, error) {
 
 	lineBottom := 0
 
-	var txt string
+	var strBuilder strings.Builder
 
 	for pageIndex := range xmlData.Pages {
 		for textIndex := range xmlData.Pages[pageIndex].Text {
 			text := &xmlData.Pages[pageIndex].Text[textIndex]
 
 			if text.Top >= lineBottom || text.Top < lineBottom-300 {
-				txt += "\n"
+				strBuilder.WriteString("\n")
 			}
 
-			txt += text.Text
+			strBuilder.WriteString(text.Text)
 
 			lineBottom = text.Top + text.Height
 		}
 	}
 
-	return txt, nil
+	return strBuilder.String(), nil
 }
